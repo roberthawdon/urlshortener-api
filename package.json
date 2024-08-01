@@ -1,0 +1,19 @@
+{
+  "name": "UrlShortenerApi",
+  "version": "0.0.9",
+  "description": "Hawdon URL Shortener API",
+  "main": "api.js",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "passport-jwt": "^4.0.1",
+    "valid-url": "^1.0.9",
+    "bcrypt": "^5.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
