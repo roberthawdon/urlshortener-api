@@ -43,35 +43,23 @@ router.post('/new', (req, res, next) => {
   };
 });
 
-router.get('/list', (req, res, next) => {
-  return urlModel.find({ createdBy: req.user },function(err,result){
-    try {
-      if (!result){
-        res.status(404).json({ error: "No entries found"});
-      } else if (err) {
-        const error = new Error('An Error occurred');
-        return next(error);
-      } else {
-        var o = {};
-        var key = 'entries';
-        o[key] = [];
-        for (var index in result){
-          console.log(index+": "+result[index]);
-          var d = {
-            shortId: result[index].shortId,
-            longUrl: result[index].longUrl,
-            createdOn: result[index].createdOn,
-            removed: result[index].removed
-          };
-          o[key].push(d);
-        }
-        res.json( o );
-      };
-      return result;
-    } catch (error) {
-      return next(error);
-    };
-  });
+router.get('/list', async (req, res, next) => {
+  try {
+    const result = await urlModel.find({ createdBy: req.user }).exec();
+    if (!result || result.length === 0) {
+      res.status(404).json({ error: "No entries found" });
+    } else {
+      const entries = result.map(entry => ({
+        shortId: entry.shortId,
+        longUrl: entry.longUrl,
+        createdOn: entry.createdOn,
+        removed: entry.removed
+      }));
+      res.json({ entries });
+    }
+  } catch (error) {
+    next(new Error('An Error occurred'));
+  }
 });
 
 module.exports = router;
