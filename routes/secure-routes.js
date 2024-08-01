@@ -43,6 +43,23 @@ router.post('/new', (req, res, next) => {
   };
 });
 
+router.delete('/remove', async (req, res, next) => {
+  try {
+    const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
+    if (!result) {
+      res.status(404).json({ request: req.body.shortId, error: "Short ID Not Found" });
+    } else if (result.removed) {
+      res.status(410).json({ request: req.body.shortId, error: "Short ID Gone" });
+    } else {
+      const updateResult = await urlModel.updateOne( {shortId: req.body.shortId}, {longUrl: null, removed: true});
+      res.json({ request: req.body.shortId });
+    }
+  } catch (error) {
+    const err = new Error('An Error occurred');
+    next(err);
+  }
+});
+
 router.get('/list', async (req, res, next) => {
   try {
     const result = await urlModel.find({ createdBy: req.user }).exec();

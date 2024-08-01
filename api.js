@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 
 var appName = "URL Shortener API"
-var version = "0.0.10"
+var version = "0.0.12"
 
 app.use('/', routes);
 app.use('/manage', passport.authenticate('jwt', {session : false}), secureRoute);

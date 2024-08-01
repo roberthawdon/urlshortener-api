@@ -41,6 +41,8 @@ router.get('/lookup/:urlCode', async (req, res, next) => {
     const result = await urlModel.findOne({ shortId: req.params.urlCode }).exec();
     if (!result) {
       res.status(404).json({ request: req.params.urlCode, error: "Short ID Not Found" });
+    } else if (result.removed) {
+      res.status(410).json({ request: req.params.urlCode, error: "Short ID Gone" });
     } else {
       const longUrl = result.longUrl;
       res.json({ request: req.params.urlCode, longUrl: longUrl });
