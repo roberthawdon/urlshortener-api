@@ -43,6 +43,25 @@ router.post('/new', (req, res, next) => {
   };
 });
 
+router.patch('/update', async (req, res, next) => {
+  try {
+    const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
+    if (!result) {
+      res.status(404).json({ request: req.body.shortId, error: "Short ID Not Found" });
+    } else {
+      if (validUrl.isUri(req.body.longUrl)){
+        const updateResult = await urlModel.updateOne( {shortId: req.body.shortId}, {longUrl: req.body.longUrl, removed: false});
+        res.status(200).json({ status: 'OK', shortId: req.body.shortId, shortUrl: appHost + appUri + '/' + req.body.shortId });
+      } else {
+        res.status(400).json({ status: 'Bad Request', detail: 'Invalid URL format: ' + req.body.longUrl });
+      }
+    }
+  } catch (error) {
+    const err = new Error('An Error occurred');
+    next(err);
+  }
+});
+
 router.delete('/remove', async (req, res, next) => {
   try {
     const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
@@ -52,7 +71,7 @@ router.delete('/remove', async (req, res, next) => {
       res.status(410).json({ request: req.body.shortId, error: "Short ID Gone" });
     } else {
       const updateResult = await urlModel.updateOne( {shortId: req.body.shortId}, {longUrl: null, removed: true});
-      res.json({ request: req.body.shortId });
+      res.status(200).json({ status: 'OK', request: req.body.shortId });
     }
   } catch (error) {
     const err = new Error('An Error occurred');
