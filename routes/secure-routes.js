@@ -35,7 +35,7 @@ router.patch('/user', passport.authenticate('changePassword', { session : false 
 
 router.post('/new', (req, res, next) => {
   if (validUrl.isUri(req.body.longUrl)){
-    var shortId = makeId(6);
+    var shortId = req.body.shortId || makeId(6);
     urlModel.create( { shortId: shortId, longUrl: req.body.longUrl, createdBy: req.user } );
     res.status(201).json({ status: 'Created', shortId: shortId, shortUrl: appHost + appUri + '/' + shortId });
   } else {
@@ -47,7 +47,7 @@ router.patch('/update', async (req, res, next) => {
   try {
     const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
     if (!result) {
-      res.status(404).json({ request: req.body.shortId, error: "Short ID Not Found" });
+      res.status(404).json({ status: 'Not Found', request: req.body.shortId, detail: "Short ID Not Found" });
     } else {
       if (validUrl.isUri(req.body.longUrl)){
         const updateResult = await urlModel.updateOne( {shortId: req.body.shortId}, {longUrl: req.body.longUrl, removed: false});
@@ -83,7 +83,7 @@ router.get('/list', async (req, res, next) => {
   try {
     const result = await urlModel.find({ createdBy: req.user }).exec();
     if (!result || result.length === 0) {
-      res.status(404).json({ error: "No entries found" });
+      res.status(404).json({ status: 'Not Found', detail: "No entries found" });
     } else {
       const entries = result.map(entry => ({
         shortId: entry.shortId,

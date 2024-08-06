@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 
 var appName = "URL Shortener API"
-var version = "0.0.15"
+var version = "0.0.18"
 
 app.use('/', routes);
 app.use('/manage', passport.authenticate('jwt', {session : false}), secureRoute);
@@ -31,7 +31,7 @@ app.get('/ping', (req, res, next) => {
 });
 
 app.get('/lookup', (req, res) => {
-  res.status(400).json({ error: "Bad Request"});
+  res.status(400).json({ status: 'Bad Request', detail: "Bad Request"});
 });
 
 // app.put('/modify/:urlCode', (req, res) => {
@@ -40,12 +40,12 @@ app.get('/lookup', (req, res) => {
 // });
 
 app.all('*', function(req, res, next){
-  res.status(404).json({ error: "Endpoint Not Found"});
+  res.status(404).json({ status: 'Not Found', detail: "Endpoint Not Found"});
 });
 
 app.use(function (err, req, res, next) {
   console.error(err.stack)
-  res.status(500).json({ error: "Internal Server Error"});
+  res.status(500).json({ status: 'Internal Server Error', detail: "Internal Server Error"});
 })
 
 app.listen(port, () => {
