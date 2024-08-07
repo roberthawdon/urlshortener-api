@@ -36,8 +36,17 @@ router.patch('/user', passport.authenticate('changePassword', { session : false 
 router.post('/new', (req, res, next) => {
   if (validUrl.isUri(req.body.longUrl)){
     var shortId = req.body.shortId || makeId(6);
-    urlModel.create( { shortId: shortId, longUrl: req.body.longUrl, createdBy: req.user } );
-    res.status(201).json({ status: 'Created', shortId: shortId, shortUrl: appHost + appUri + '/' + shortId });
+    urlModel.create( { shortId: shortId, longUrl: req.body.longUrl, createdBy: req.user } )
+      .then((newDocument) => {
+        res.status(201).json({ status: 'Created', shortId: shortId, shortUrl: appHost + appUri + '/' + shortId });
+      })
+      .catch((error) => {
+        if (error.code === 11000) {
+          res.status(409).json({ status: 'Conflict', detail: 'Unable to create new entry for shortId "' + shortId + '". ID already exists.' });
+        } else {
+          res.status(500).json({ status: 'Internal Server Error', detail: 'Internal Server Error' });
+        }
+      })
   } else {
     res.status(400).json({ status: 'Bad Request', detail: 'Invalid URL format: ' + req.body.longUrl });
   };

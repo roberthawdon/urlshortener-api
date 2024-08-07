@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
 
 var appName = "URL Shortener API"
-var version = "0.0.18"
+var version = "0.0.19"
 
 app.use('/', routes);
 app.use('/manage', passport.authenticate('jwt', {session : false}), secureRoute);
@@ -33,11 +33,6 @@ app.get('/ping', (req, res, next) => {
 app.get('/lookup', (req, res) => {
   res.status(400).json({ status: 'Bad Request', detail: "Bad Request"});
 });
-
-// app.put('/modify/:urlCode', (req, res) => {
-//   console.log('Got body:', req.body);
-//   res.sendStatus(200);
-// });
 
 app.all('*', function(req, res, next){
   res.status(404).json({ status: 'Not Found', detail: "Endpoint Not Found"});

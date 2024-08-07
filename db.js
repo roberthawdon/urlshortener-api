@@ -10,7 +10,6 @@ const {
 } = process.env;
 
 const options = {
-  useNewUrlParser: true,
   connectTimeoutMS: 10000,
 };
 
