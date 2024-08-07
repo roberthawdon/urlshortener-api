@@ -90,7 +90,12 @@ router.delete('/remove', async (req, res, next) => {
 
 router.get('/list', async (req, res, next) => {
   try {
-    const result = await urlModel.find({ createdBy: req.user }).exec();
+    let result;
+    if (req.query.hasOwnProperty('includeDeleted')){
+      result = await urlModel.find({ createdBy: req.user }).exec();
+    } else {
+      result = await urlModel.find({ createdBy: req.user, removed: false }).exec();
+    }
     if (!result || result.length === 0) {
       res.status(404).json({ status: 'Not Found', detail: "No entries found" });
     } else {
