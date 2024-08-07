@@ -88,6 +88,21 @@ router.delete('/remove', async (req, res, next) => {
   }
 });
 
+router.delete('/purge', async (req, res, next) => {
+  try {
+    const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
+    if (!result) {
+      res.status(404).json({ request: req.body.shortId, error: "Short ID Not Found" });
+    } else {
+      const updateResult = await urlModel.deleteOne( {shortId: req.body.shortId});
+      res.status(200).json({ status: 'OK', request: req.body.shortId });
+    }
+  } catch (error) {
+    const err = new Error('An Error occurred');
+    next(err);
+  }
+});
+
 router.get('/list', async (req, res, next) => {
   try {
     let result;
