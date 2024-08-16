@@ -105,12 +105,19 @@ router.delete('/purge', async (req, res, next) => {
 
 router.get('/list', async (req, res, next) => {
   try {
-    let result;
-    if (req.query.hasOwnProperty('includeDeleted')){
-      result = await urlModel.find({ createdBy: req.user }).exec();
-    } else {
-      result = await urlModel.find({ createdBy: req.user, removed: false }).exec();
+    let query = { createdBy: req.user };
+    if (!req.query.hasOwnProperty('includeDeleted')) {
+      query.removed = false;
     }
+
+    let sortOption = {};
+    if (req.query.sortBy === 'oldest') {
+      sortOption.createdOn = 1; // Ascending order (oldest first)
+    } else {
+      sortOption.createdOn = -1; // Default to descending order (newest first)
+    }
+
+    let result = await urlModel.find(query).sort(sortOption).exec();
     if (!result || result.length === 0) {
       res.status(404).json({ status: 'Not Found', detail: "No entries found" });
     } else {
