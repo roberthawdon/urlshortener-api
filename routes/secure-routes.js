@@ -75,12 +75,12 @@ router.delete('/remove', async (req, res, next) => {
   try {
     const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
     if (!result) {
-      res.status(404).json({ request: req.body.shortId, error: "Short ID Not Found" });
+      res.status(404).json({ status: 'Not Found', request: req.body.shortId, detail: "Short ID Not Found" });
     } else if (result.removed) {
-      res.status(410).json({ request: req.body.shortId, error: "Short ID Gone" });
+      res.status(410).json({ status: 'Gone', request: req.body.shortId, detail: "Short ID Gone" });
     } else {
       const updateResult = await urlModel.updateOne( {shortId: req.body.shortId}, {longUrl: null, removed: true});
-      res.status(200).json({ status: 'OK', request: req.body.shortId });
+      res.status(200).json({ status: 'OK', request: req.body.shortId, detail: "Short ID '" + req.body.shortId + "' removed successfully" });
     }
   } catch (error) {
     const err = new Error('An Error occurred');
@@ -92,10 +92,10 @@ router.delete('/purge', async (req, res, next) => {
   try {
     const result = await urlModel.findOne({ shortId: req.body.shortId }).exec();
     if (!result) {
-      res.status(404).json({ request: req.body.shortId, error: "Short ID Not Found" });
+      res.status(404).json({ status: 'Not Found', request: req.body.shortId, detail: "Short ID Not Found" });
     } else {
       const updateResult = await urlModel.deleteOne( {shortId: req.body.shortId});
-      res.status(200).json({ status: 'OK', request: req.body.shortId });
+      res.status(200).json({ status: 'OK', request: req.body.shortId, detail: "Short ID '" + req.body.shortId + "' purged successfully" });
     }
   } catch (error) {
     const err = new Error('An Error occurred');
