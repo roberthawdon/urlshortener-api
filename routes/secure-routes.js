@@ -105,11 +105,13 @@ router.delete('/purge', async (req, res, next) => {
 
 router.get('/list', async (req, res, next) => {
   try {
+    // Set up the base query
     let query = { createdBy: req.user };
     if (!req.query.hasOwnProperty('includeDeleted')) {
       query.removed = false;
     }
 
+    // Determine sort order
     let sortOption = {};
     if (req.query.sortBy === 'oldest') {
       sortOption.createdOn = 1; // Ascending order (oldest first)
@@ -117,7 +119,20 @@ router.get('/list', async (req, res, next) => {
       sortOption.createdOn = -1; // Default to descending order (newest first)
     }
 
-    let result = await urlModel.find(query).sort(sortOption).exec();
+    // Pagination parameters
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Number of results per page, default 10
+    const skip = (page - 1) * limit;
+
+    // Fetch the total number of documents matching the query
+    const totalEntries = await urlModel.countDocuments(query);
+
+    // Fetch the results with pagination
+    const result = await urlModel.find(query).sort(sortOption).skip(skip).limit(limit).exec();
+
+    // Determine the total number of pages
+    const totalPages = Math.ceil(totalEntries / limit);
+
     if (!result || result.length === 0) {
       res.status(404).json({ status: 'Not Found', detail: "No entries found" });
     } else {
@@ -127,7 +142,14 @@ router.get('/list', async (req, res, next) => {
         createdOn: entry.createdOn,
         removed: entry.removed
       }));
-      res.json({ entries });
+
+      res.json({
+        page: page,
+        totalPages: totalPages,
+        totalEntries: totalEntries,
+        entriesPerPage: limit,
+        entries: entries
+      });
     }
   } catch (error) {
     next(new Error('An Error occurred'));
