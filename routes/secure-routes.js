@@ -20,17 +20,11 @@ router.get('/profile', (req, res, next) => {
 });
 
 router.post('/user', passport.authenticate('signup', { session : false }), async (req, res, next) => {
-  res.json({
-    message : 'Signup successful',
-    user : req.user
-  });
+  res.status(200).json({ status: 'OK', detail: 'User Signup Successful', user: req.user });
 });
 
 router.patch('/user', passport.authenticate('changePassword', { session : false }), async (req, res, next) => {
-  res.json({
-    message : 'Password update successful',
-    user : req.user
-  });
+  res.status(200).json({ status: 'OK', detail: 'Password updated successfully', user: req.user });
 });
 
 router.post('/new', (req, res, next) => {
