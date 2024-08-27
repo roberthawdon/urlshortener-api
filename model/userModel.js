@@ -22,12 +22,12 @@ userSchema.pre('save', async function(next){
   next();
 });
 
-userSchema.pre('findOneAndUpdate', async function(next){
-  const user = this;
-  var update = this.update();
-  var password = this._update.password;
-  const hash = await bcrypt.hash(password, 10);
-  this._update.password = hash;
+userSchema.pre('findOneAndUpdate', async function(next) {
+  const update = this.getUpdate();
+  if (update.password) {
+    const hash = await bcrypt.hash(update.password, 10);
+    this.setUpdate({ ...update, password: hash });
+  }
   next();
 });
 
